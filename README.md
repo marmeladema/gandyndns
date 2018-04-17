@@ -1,21 +1,18 @@
 # Gandyndns
 
 ## What is Gandyndns?
-Gandidyndns is a dynamic IP updater based on Gandi API (>=3.3.36).
+Gandidyndns is a dynamic IP updater based on Gandi LiveAPI.
 It can handle IPv4 and IPv6 although care should taken for IPv6 if you use dynamic/temporary addresses.
 
 ## How does it work?
 Well, read the code, it's pretty simple :]
 In short, it does the following for each domain that has to be updated:
 
-1. Retrieve current address from http://whatip.me
-2. Resolve current domain from google dns server
-3. If both match than, everything is up to date! If not we go on.
-4. Retrieve current zone version from gandi
-5. If a record with the same name/type/value is found, then current zone version is up to date, but not propagated yet! If not we go on.
-6. Create new zone version
-7. Update or create a record for the current domain
-8. Set current zone version to newly created version
+1. Retrieve current address(es) from http://whatip.me
+For each type of each record of each domain from the configuration:
+2. Retrieve current record from gandi
+3. If both records match, current record is up to date!
+4. If not, we upgrade gandi with current record informations
 Done.
 
 ## How to install it?
@@ -28,24 +25,26 @@ If you do not plan to share it among different users, you can (and maybe should)
 You can also install it in a virtualenv.
 
 ## How to use it?
+
+Configuration file is written in json format.
+
 ### Basic configuration
-    [test.example.com]
-    apikey = d41d8cd98f00b204e9800998ecf8427e
-    record_name = test
-    record_type = A
-    zone_id = 1337
+    {
+        "domains": {
+            "example.com": {
+                "apikey": "d41d8cd98f00b204e9800998ecf8427e",
+                "records" : {
+                    "test": {
+                        "A": {
+                            "rrset_values":["{remote_addr}"]
+                        }
+                    }
+                }
+            }
+        }
+    }
 
-You can find your **zone_id** from Gandi zone edition url:
-
-    https://www.gandi.net/admin/domain/zone/<zone_id>/<zone_version>/edit
-
-So for example, if you have to visit this url to edit your zone:
-
-    https://www.gandi.net/admin/domain/zone/1337/12/edit
-
-Then, your **zone_id** is **1337**
-
-You can either have different config files or have multiple sections in the same config file, as you wish.
+You can either have different config files or have multiple domains in the same config file, as you wish.
 
 ### Basic usage
     $ gandyndns /path/to/gandyndns.conf

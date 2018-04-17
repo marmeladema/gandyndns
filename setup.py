@@ -13,7 +13,7 @@ def read(fname):
 
 setup(
     name = "Gandyndns",
-    version = "0.1",
+    version = "0.2",
     author = "Elie ROUDNINSKI",
     author_email = "xademax@gmail.com",
     description = ("Gandi dynamic ip updater."),
@@ -28,5 +28,5 @@ setup(
         "Topic :: Utilities",
         "License :: OSI Approved :: MIT License",
     ],
-    install_requires=['requests', 'dnspython'],
+    install_requires=['requests'],
 )
