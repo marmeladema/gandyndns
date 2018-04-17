@@ -20,6 +20,7 @@ setup(
     license = "BSD",
     keywords = "gandi dyndns",
     url = "https://github.com/marmeladema/gandyndns",
+    download_url = 'https://github.com/marmeladema/gandyndns/archive/gandyndns-0.2.tar.gz',
     packages=['gandyndns'],
     scripts=['scripts/gandyndns'],
     long_description=read('README.md'),
