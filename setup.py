@@ -17,7 +17,7 @@ setup(
     author = "Elie ROUDNINSKI",
     author_email = "xademax@gmail.com",
     description = ("Gandi dynamic ip updater."),
-    license = "BSD",
+    license = "MIT",
     keywords = "gandi dyndns",
     url = "https://github.com/marmeladema/gandyndns",
     download_url = 'https://github.com/marmeladema/gandyndns/archive/gandyndns-0.2.tar.gz',
