@@ -30,4 +30,5 @@ setup(
         "License :: OSI Approved :: MIT License",
     ],
     install_requires=['requests'],
+    data_files = [('share/gandyndns', ['sample.json'])],
 )

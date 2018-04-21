@@ -1,0 +1,14 @@
+{
+    "domains": {
+        "example.com": {
+            "apikey": "d41d8cd98f00b204e9800998ecf8427e",
+            "records" : {
+                "test": {
+                    "A": {
+                        "rrset_values":["{remote_addr}"]
+                    }
+                }
+            }
+        }
+    }
+}
