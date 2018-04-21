@@ -29,6 +29,6 @@ setup(
         "Topic :: Utilities",
         "License :: OSI Approved :: MIT License",
     ],
-    install_requires=['requests'],
+    install_requires=['requests', 'appdirs'],
     data_files = [('share/gandyndns', ['sample.json'])],
 )

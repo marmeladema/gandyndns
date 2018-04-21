@@ -1,22 +1,85 @@
 #!/usr/bin/env python3
 
+import os
+import sys
+import platform
 import pathlib
 import json
 import argparse
+import appdirs
+import logging
 
 from gandyndns import gandyndns
 
+appname = 'gandyndns'
+
+if platform.system() == 'Linux':
+	os.environ['XDG_CONFIG_DIRS'] = '/etc:/usr/local/etc'
+
+def open_config(config_path, default_config_path, logger):
+	if not config_path:
+		for config_dir in appdirs.user_config_dir(appname).split(':'):
+			try:
+				config_path = os.path.join(config_dir, 'gandyndns.json')
+				logger.debug("Loading configuration file: {}".format(config_path))
+				return open(config_path)
+			except IOError:
+				logger.debug("Could not load configuration file: {}".format(config_path))
+
+		for config_dir in appdirs.site_config_dir(appname, multipath = True).split(':'):
+			try:
+				config_path = os.path.join(config_dir, 'gandyndns.json')
+				logger.debug("Loading configuration file: {}".format(config_path))
+				return open(config_path)
+			except IOError:
+				logger.debug("Could not load configuration file: {}".format(config_path))
+
+		config_path = default_config_path
+
+	logger.debug("Loading configuration file: {}".format(config_path))
+	return open(config_path)
+
 if __name__ == "__main__":
+	default_config_path = os.path.join(appdirs.site_config_dir(appname), 'gandyndns.json')
+
 	parser = argparse.ArgumentParser()
-	parser.add_argument('config', type=pathlib.Path, help='Path to gandyndns configuration file')
-	parser.add_argument('--logging-level', type=int, help='Logging level')
-	#parser.add_argument('--logging-handler', help='Logging handler')
+	parser.add_argument(
+		'-c', '--config',
+		type=pathlib.Path,
+		help='Path to gandyndns configuration file (default: {})'.format(default_config_path),
+	)
+	parser.add_argument(
+		'--logging-level',
+		type=int,
+		help='Logging level',
+		default=logging.INFO,
+	)
+	parser.add_argument(
+		'--logging-handler',
+		help='Logging handler',
+		default='stdout',
+	)
 	args = parser.parse_args()
 
-	config = json.load(open(args.config))
+	logger = logging.getLogger('gandyndns')
+	logger.setLevel(int(args.logging_level))
+
+	logging_handler_name,*logging_handler_args = args.logging_handler.split(':', 1)
+	if logging_handler_name == 'stdout':
+		logging_handler = logging.StreamHandler(sys.stdout)
+	elif logging_handler_name == 'file':
+		logging_handler = logging.FileHandler(logging_handler_args)
+	elif logging_handler_name == 'syslog':
+		logging_handler = logging.SysLogHandler()
+	logger.addHandler(logging_handler)
+
+	config = {}
+	with open_config(args.config, default_config_path, logger) as source:
+		config.update(json.load(source))
+		logger.info('Loaded configuration file: {}'.format(source.name))
+	logger.debug(config)
 
 	for domain in config.get('domains', {}):
 		gandyndns_args = config['domains'][domain]
-		if args.logging_level:
-			gandyndns_args['logging_level'] = args.logging_level
+		gandyndns_args['logger'] = logger
 		gandyndns(domain, **gandyndns_args)

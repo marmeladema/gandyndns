@@ -8,18 +8,11 @@ whatip_url = {
 	'remote_addr6': 'http://ipv6.whatip.me/?json',
 }
 
-def gandyndns(domain, apikey, records, logging_level = None, logging_handler = None):
-	logger = logging.getLogger('gandyndns')
-
-	if logging_level:
-		logger.setLevel(int(logging_level))
-	else:
+def gandyndns(domain, apikey, records, logger = None):
+	if not logger:
+		logger = logging.getLogger('gandyndns')
 		logger.setLevel(logging.INFO)
-
-	if not logging_handler:
-		logging_handler = logging.StreamHandler(sys.stdout)
-
-	logger.addHandler(logging_handler)
+		logger.addHandler(logging.StreamHandler(sys.stdout))
 
 	logger.debug('Retrieving current addresses from whatip.me')
 	params = {}
