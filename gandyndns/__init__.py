@@ -3,9 +3,9 @@ import requests
 import xmlrpc.client
 import logging
 
-whatip_url = {
-    'remote_addr': 'http://ipv4.whatip.me/?json',
-    'remote_addr6': 'http://ipv6.whatip.me/?json',
+ipify_url = {
+    'remote_addr': 'https://api.ipify.org/?format=json',
+    'remote_addr6': 'https://api6.ipify.org/?format=json',
 }
 
 
@@ -15,11 +15,11 @@ def gandyndns(domain, apikey, records, logger = None):
 		logger.setLevel(logging.INFO)
 		logger.addHandler(logging.StreamHandler(sys.stdout))
 
-	logger.debug('Retrieving current addresses from whatip.me')
+	logger.debug('Retrieving current addresses from ipify.org')
 	params = {}
-	for param in whatip_url:
+	for param in ipify_url:
 		try:
-			r = requests.get(url = whatip_url[param])
+			r = requests.get(url = ipify_url[param])
 			address = r.json()['ip']
 			logger.info('Current {{{}}} is: {}'.format(param, address))
 			params[param] = address
