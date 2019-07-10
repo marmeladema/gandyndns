@@ -13,14 +13,14 @@ def read(fname):
 
 setup(
     name = "Gandyndns",
-    version = "0.3",
+    version = "0.4",
     author = "Elie ROUDNINSKI",
     author_email = "xademax@gmail.com",
     description = ("Gandi dynamic ip updater."),
     license = "MIT",
     keywords = "gandi dyndns",
     url = "https://github.com/marmeladema/gandyndns",
-    download_url = 'https://github.com/marmeladema/gandyndns/archive/0.3.tar.gz',
+    download_url = 'https://github.com/marmeladema/gandyndns/archive/0.4.tar.gz',
     packages=['gandyndns'],
     scripts=['scripts/gandyndns'],
     long_description=read('README.md'),
