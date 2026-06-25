@@ -1,0 +1,47 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "gandyndns"
+version = "0.5"
+description = "Gandi dynamic IP updater based on the LiveDNS API."
+readme = "README.md"
+license = { text = "MIT" }
+authors = [{ name = "Elie ROUDNINSKI", email = "xademax@gmail.com" }]
+keywords = ["gandi", "dyndns", "dns"]
+requires-python = ">=3.8"
+dependencies = ["requests", "platformdirs"]
+classifiers = [
+	"Development Status :: 4 - Beta",
+	"Topic :: Utilities",
+	"License :: OSI Approved :: MIT License",
+	"Programming Language :: Python :: 3",
+]
+
+[project.optional-dependencies]
+test = ["pytest", "responses"]
+
+[project.urls]
+Homepage = "https://github.com/marmeladema/gandyndns"
+
+[project.scripts]
+gandyndns = "gandyndns.cli:main"
+
+[tool.setuptools]
+packages = ["gandyndns"]
+
+[tool.setuptools.data-files]
+"share/gandyndns" = ["sample.json"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.yapf]
+based_on_style = "pep8"
+spaces_before_comment = 4
+use_tabs = true
+each_dict_entry_on_separate_line = true
+continuation_align_style = "SPACE"
+dedent_closing_brackets = true
+spaces_around_default_or_named_assign = true
