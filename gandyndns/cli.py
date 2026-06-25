@@ -14,7 +14,7 @@ from typing import Iterator, Optional, Sequence
 
 import platformdirs
 
-from .core import gandyndns
+from .core import gandyndns, resolve_addresses
 
 APPNAME = "gandyndns"
 CONFIG_FILENAME = "gandyndns.json"
@@ -122,10 +122,18 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
 	config = load_config(args.config or args.config_path, logger = logger)
 	logger.debug(config)
 
+	# Resolve the host's current addresses once and reuse them for every domain.
+	addresses = resolve_addresses(
+	    interface = config.get("interface"),
+	    verify_ipv6 = config.get("verify_ipv6", True),
+	    logger = logger,
+	)
+
 	success = True
 	for domain, domain_config in config.get("domains", {}).items():
 		domain_config = dict(domain_config)
 		domain_config["logger"] = logger
+		domain_config["addresses"] = addresses
 		success = gandyndns(domain, **domain_config) and success
 
 	return 0 if success else 1

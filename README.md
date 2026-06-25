@@ -4,20 +4,27 @@
 
 ## What is Gandyndns?
 Gandyndns is a dynamic IP updater based on the Gandi LiveDNS API.
-It can handle both IPv4 and IPv6, although care should be taken for IPv6 if you
-use dynamic/temporary addresses.
+It handles both IPv4 and IPv6. For IPv6 it advertises the host's stable,
+internet-routable address rather than a short-lived temporary one (see
+[IPv6 addressing](#ipv6-addressing)).
 
 ## How does it work?
 Well, read the code, it's pretty simple :]
 
-It first retrieves the machine's current public address(es) from
-[ipify](https://www.ipify.org) (IPv4 via `api.ipify.org`, IPv6 via
-`api6.ipify.org`). Then, for each record type of each record of each domain in
-the configuration, it:
+It first determines the machine's current public address(es):
+
+- IPv4 (`{remote_addr}`) from [ipify](https://www.ipify.org) (`api.ipify.org`);
+- IPv6 (`{remote_addr6}`) from the host's own network interfaces, picking the
+  canonical stable global address (see [IPv6 addressing](#ipv6-addressing)).
+
+Then, for each record type of each record of each domain in the configuration, it:
 
 1. retrieves the current record from Gandi;
 2. leaves it untouched if it already matches the current address;
 3. otherwise updates Gandi with the current address.
+
+A record whose value needs an address that could not be determined is skipped
+with a warning rather than failing the run.
 
 It runs once and exits, so it is meant to be triggered periodically (see
 [Running it periodically](#running-it-periodically)).
@@ -86,6 +93,35 @@ mix both, and define several records per domain:
     }
 
 You can either have different config files or have multiple domains in the same config file, as you wish.
+
+### IPv6 addressing
+Unlike IPv4, IPv6 hosts typically own a globally routable address directly, and
+many use [RFC 4941](https://www.rfc-editor.org/rfc/rfc4941) *temporary/privacy*
+addresses for outbound traffic. Asking an external service such as ipify would
+therefore report a short-lived temporary address — the wrong thing to publish in
+a DNS record. Instead, gandyndns reads the host's own interfaces (Linux
+`/proc/net/if_inet6`) and selects the **stable, global, non-temporary** address.
+
+By default the chosen address is then verified against ipify on a best-effort
+basis: the request is bound to that source address and, if ipify confirms it,
+it is used. If ipify disagrees, the next candidate is tried; if ipify is
+unreachable, the local address is used anyway so an outage does not block
+updates. When no stable global IPv6 address can be determined (a non-Linux host,
+no `/proc/net/if_inet6`, or only temporary addresses present), the `AAAA` record
+is skipped with a warning.
+
+Two optional top-level configuration keys tune this behaviour:
+
+    {
+        "interface": "eth0",
+        "verify_ipv6": true,
+        "domains": { ... }
+    }
+
+- `interface`: restrict IPv6 discovery to a single interface (useful with
+  multiple NICs, VPNs or container bridges). Defaults to all interfaces.
+- `verify_ipv6`: set to `false` to skip the ipify cross-check and trust the
+  locally discovered address directly. Defaults to `true`.
 
 ### Basic usage
     $ gandyndns /path/to/gandyndns.json

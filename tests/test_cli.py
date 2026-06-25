@@ -86,8 +86,12 @@ def test_parse_args_positional_and_option(tmp_path):
 
 
 @responses.activate
-def test_main_runs_end_to_end(tmp_path):
+def test_main_runs_end_to_end(tmp_path, monkeypatch):
 	logging.getLogger("gandyndns").handlers.clear()
+	# IPv6 discovery is host-specific; stub it so the run is deterministic.
+	monkeypatch.setattr(
+	    core, "resolve_ipv6", lambda *a, **k: "2a01:e0a:1234:5678::1"
+	)
 
 	config = {
 	    "domains": {
@@ -105,7 +109,6 @@ def test_main_runs_end_to_end(tmp_path):
 	config_path.write_text(json.dumps(config))
 
 	responses.get(core.IPIFY_URLS["remote_addr"], json = {"ip": "203.0.113.7"})
-	responses.get(core.IPIFY_URLS["remote_addr6"], status = 500)
 	record_url = "{}/domains/example.com/records/test/A".format(
 	    core.GANDI_API_URL
 	)
